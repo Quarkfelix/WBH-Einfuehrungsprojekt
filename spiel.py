@@ -130,22 +130,24 @@ class Spiel():
             pygame.display.update()
             self._fpsTimer.tick(config.fps)
 
-    def _ereignisse_behandeln(self):
-        # Ereignis abfragen
-        for ereignis in pygame.event.get():
-            self._behandle(ereignis)
+        def _ereignisse_behandeln(self):
+            # Ereignis abfragen
+            for ereignis in pygame.event.get():
+                self._behandle(ereignis)
 
-    def _behandle(self, event):
-        # Ueberpruefe ob Schliessen-Symbol im Fenster gedrueckt wurde
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
-            return
-        # Ueberpruefe ob Maus bewegt wurde
-        elif event.type == pygame.MOUSEMOTION:
-            self._spieler.move(event.pos)
-            return
-        return event
+        def _behandle(self, event):
+            # Ueberpruefe ob Schliessen-Symbol im Fenster gedrueckt wurde
+            print(event)
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+                return
+            # Ueberpruefe ob Maus bewegt wurde
+            elif event.type == pygame.MOUSEMOTION:
+                self._spieler.move(event.pos)
+                return
+
+            return event
 
     def _update(self):
         self._bewegen()
@@ -294,17 +296,27 @@ class AutoSchlaeger(Schlaeger):
     def _beobachten(self):
         if self.rect.centery < self._ball.rect.centery:
             self.rect.y += self.geschwindigkeit
+
         else:
             self.rect.y -= self.geschwindigkeit
 
+    # Der Bug tritt auf weil immer über die mitte Gesprungen wird. if abs(... fixt es.
     def _zentrieren(self):
         if self.rect.centery < config.fenster_mitte():
-            self.rect.y += self.geschwindigkeit
+            if abs(self.rect.centery - config.fenster_mitte()) < 5:
+                self.rect.y += 1
+            else:
+                self.rect.y += self.geschwindigkeit
         elif self.rect.centery > config.fenster_mitte():
-            self.rect.y -= self.geschwindigkeit
+            if abs(self.rect.centery - config.fenster_mitte()) < 5:
+                self.rect.y -= 1
+            else:
+                self.rect.y -= self.geschwindigkeit
 
 
-class PunkteAnzeige():
+
+
+class PunkteAnzeige:
     # Initialisierung (OOP Konstruktor)
     def __init__(self, punkte, x, y, schrift, farbe=pygame.Color('white')):
         self.punkte = punkte
